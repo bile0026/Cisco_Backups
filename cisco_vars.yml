@@ -1,0 +1,20 @@
+---
+ansible_network_os: ios
+platform: "cisco"
+current_date: "{{ lookup('pipe','date +%Y-%m-%d') }}"
+yesterday_date: "{{ lookup('pipe','date +%Y-%m-%d --date=yesterday' ) }}"
+ansible_ssh_user: ########
+ansible_ssh_pass: ########
+current_config_dir: /ansible_backups/{{ platform }}/{{ current_date }}
+current_config: /ansible_backups/{{ platform }}/{{ current_date }}/{{ inventory_hostname }}_{{ current_date }}
+yesterday_config: /ansible_backups/{{ platform }}/{{ yesterday_date }}/{{ inventory_hostname }}_{{ yesterday_date }}
+
+sed_commands:
+  - "'/!Command/d'"
+  - "'/!Time:/d'"
+  - "'/^Current configuration/d'"
+  - "'/^Building configuration/d'"
+  - "'/^.*Last configuration change/d'"
+  - "'/^.*NVRAM config last/d'"
+  - "'/^ntp clock-period/d'"
+  - "'/^Tacacs session has expired/d'"
