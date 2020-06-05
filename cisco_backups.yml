@@ -42,7 +42,7 @@
   handlers:
     - name: email diffs
       mail:
-        from: ansible@example.com
+        from: "{{ from_email }}"
         to:
           - "{{ email_addresses }}"
         subject: Diff report for {{ inventory_hostname }}
