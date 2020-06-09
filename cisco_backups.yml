@@ -1,50 +1,77 @@
 ---
-- name: Backup Switch Configurations
+- name: Check for online hosts
   hosts: all
+  gather_facts: false
+  connection: network_cli
+  vars_files:
+    - switch_vars.yml
+
+  tasks:
+    - name: Ping for reachability
+      command: ping -c1 {{ inventory_hostname }}
+      delegate_to: localhost
+      register: ping_result
+      ignore_errors: true
+
+    - group_by: key=reachable
+      when: ping_result.rc == 0
+
+- name: Backup Switch Configurations
+  hosts: reachable
   gather_facts: false
   connection: network_cli
   vars_files:
     - cisco_vars.yml
 
   tasks:
-    - name: Backup device configuration
-      ios_config:
-        backup: true
-        backup_options:
-          filename: "{{ inventory_hostname }}_{{ current_date }}"
-          dir_path: /ansible_backups/cisco/{{ current_date }}
-        diff_ignore_lines:
-          - "^.*Time:"
-          - "^.*Last configuration change"
-          - "^.*NVRAM config last"
+  - name: Backup device configuration
+    ios_config:
+      backup: true
+      backup_options:
+        filename: "{{ inventory_hostname }}_{{ current_date }}"
+        dir_path: /ansible_backups/cisco/{{ current_date }}
+      diff_ignore_lines:
+        - "^.*Time:"
+        - "^.*Last configuration change"
+        - "^.*NVRAM config last"
+    tags: backup
 
-    - name: Cleanup configs
-      shell: "sed -i {{ item }} {{ current_config }}"
-      with_items: "{{ sed_commands }}"
-      delegate_to: localhost
+  - name: Cleanup configs
+    shell: "sed -i {{ item }} {{ current_config }}"
+    with_items: "{{ sed_commands }}"
+    delegate_to: localhost
+    tags: cleanup
 
-    - name: Check for Diffs
-      shell: diff -B {{ current_config }} {{ yesterday_config }}
-      failed_when: diff_result.rc > 1
-      register: diff_result
-      delegate_to: localhost
+  - name: Check if yesterday's configuration exists
+    stat:
+      path: "{{ yesterday_config }}"
+    register: check_result
+    delegate_to: localhost
 
-    - name: Make diff report files
-      shell: vimdiff {{ yesterday_config }} {{ current_config }} -c TOhtml  -c 'w! /tmp/{{ inventory_hostname }}_{{ current_date }}.html' -c 'qa!'
-      failed_when: "diff_output.rc > 1"
-      delegate_to: localhost
-      register: diff_output
-      when: diff_result.rc == 1
-      notify: email diffs
-      async: 120
-      poll: 30
+  - name: Check for Diffs
+    shell: diff -B {{ current_config }} {{ yesterday_config }}
+    failed_when: diff_result.rc > 1
+    register: diff_result
+    when: check_result.stat.exists == true
+    delegate_to: localhost
+    tags: diffs
+
+  - name: Make diff report files
+    shell: vimdiff {{ yesterday_config }} {{ current_config }} -c TOhtml  -c 'w! /tmp/{{ inventory_hostname }}_{{ current_date }}.html' -c 'qa!'
+    failed_when: "diff_output.rc > 1"
+    delegate_to: localhost
+    register: diff_output
+    when: diff_result.rc == 1
+    notify: email diffs
+    async: 120
+    poll: 30
+    tags: reports
 
   handlers:
     - name: email diffs
       mail:
         from: "{{ from_email }}"
-        to:
-          - "{{ email_addresses }}"
+        to: "{{ email_addresses }}"
         subject: Diff report for {{ inventory_hostname }}
         subtype: html
         host: "{{ smtp_server }}"
