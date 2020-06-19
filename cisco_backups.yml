@@ -28,8 +28,8 @@
     ios_config:
       backup: true
       backup_options:
-        filename: "{{ inventory_hostname }}_{{ current_date }}"
-        dir_path: /ansible_backups/cisco/{{ current_date }}
+        filename: "{{ config_filename }}"
+        dir_path: "{{ config_dir}}"
       diff_ignore_lines:
         - "^.*Time:"
         - "^.*Last configuration change"
