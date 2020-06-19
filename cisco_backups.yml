@@ -44,7 +44,7 @@
       mode: 0755
     run_once: true
     with_items:
-      - "{{ configs_dir }}"
+      - "{{ config_dir }}"
       - "{{ diff_directory }}"
     delegate_to: localhost
 

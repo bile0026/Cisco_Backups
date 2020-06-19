@@ -5,7 +5,7 @@ current_date: "{{ lookup('pipe','date +%Y-%m-%d') }}"
 yesterday_date: "{{ lookup('pipe','date +%Y-%m-%d --date=yesterday' ) }}"
 # ansible_ssh_user: ########
 # ansible_ssh_pass: ########
-current_config_dir: /ansible_backups/{{ platform }}/{{ current_date }}
+config_dir: /ansible_backups/{{ platform }}/{{ current_date }}
 current_config: /ansible_backups/{{ platform }}/{{ current_date }}/{{ inventory_hostname }}_{{ current_date }}.txt
 config_filename: "{{ inventory_hostname }}_{{ current_date }}.txt"
 yesterday_config: /ansible_backups/{{ platform }}/{{ yesterday_date }}/{{ inventory_hostname }}_{{ yesterday_date }}.txt
