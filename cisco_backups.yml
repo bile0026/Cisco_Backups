@@ -13,7 +13,8 @@
       register: ping_result
       ignore_errors: true
 
-    - group_by: key=reachable
+    - name: Group hosts by online
+      group_by: key=reachable
       when: ping_result.rc == 0
 
 - name: Backup Switch Configurations
