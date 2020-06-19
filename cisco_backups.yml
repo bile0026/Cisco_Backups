@@ -36,16 +36,6 @@
         - "^.*NVRAM config last"
     tags: backup
 
-  - name: Check to see if {{ current_date }} directory exists
-    stat:
-      path: "{{ item }}"
-    register: folder_check
-    run_once: true
-    with_items:
-      - "{{ configs_dir }}"
-      - "{{ diff_directory }}"
-    delegate_to: localhost
-
   - name: Create {{ current_date }} folder when it does not exist
     file:
       path: "{{ item }}"
@@ -55,7 +45,6 @@
     with_items:
       - "{{ configs_dir }}"
       - "{{ diff_directory }}"
-    when: folder_check.stat.exists == false
     delegate_to: localhost
 
   - name: Cleanup configs
@@ -99,9 +88,3 @@
         host: "{{ smtp_server }}"
         attach: /{{ diff_directory }}/{{ inventory_hostname }}_{{ current_date }}.html
       when: diff_result.rc != 0
-
-    # - name: remove temp files
-    #   file:
-    #     state: absent
-    #     path: "/tmp/{{ inventory_hostname }}_{{ current_date }}.html"
-    #   listen: email diffs
