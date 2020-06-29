@@ -25,17 +25,12 @@
     - cisco_vars.yml
 
   tasks:
-  - name: Backup device configuration
-    ios_config:
-      backup: true
-      backup_options:
-        filename: "{{ config_filename }}"
-        dir_path: "{{ config_dir }}"
-      diff_ignore_lines:
-        - "^.*Time:"
-        - "^.*Last configuration change"
-        - "^.*NVRAM config last"
-    tags: backup
+  - name: Ensure vim is installed for diff output
+    package:
+      name: vim
+      state: present
+    delegate_to: localhost
+    run_once: true
 
   - name: Create {{ current_date }} folder when it does not exist
     file:
@@ -47,6 +42,18 @@
       - "{{ config_dir }}"
       - "{{ diff_directory }}"
     delegate_to: localhost
+
+  - name: Backup device configuration
+    ios_config:
+      backup: true
+      backup_options:
+        filename: "{{ config_filename }}"
+        dir_path: "{{ config_dir }}"
+      diff_ignore_lines:
+        - "^.*Time:"
+        - "^.*Last configuration change"
+        - "^.*NVRAM config last"
+    tags: backup
 
   - name: Cleanup configs
     shell: "sed -i {{ item }} {{ current_config }}"
