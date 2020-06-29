@@ -16,11 +16,11 @@ diff_directory: /ansible_backups/{{ platform }}_diffs/{{ current_date }}
 # from_email: email@example.com
 
 sed_commands:
-  - "'/!Command/d'"
-  - "'/!Time:/d'"
-  - "'/^Current configuration/d'"
-  - "'/^Building configuration/d'"
-  - "'/^.*Last configuration change/d'"
-  - "'/^.*NVRAM config last/d'"
-  - "'/^ntp clock-period/d'"
-  - "'/^Tacacs session has expired/d'"
+  - "'/!Command/d'" # removes line with Command that is unecessary to backup
+  - "'/!Time:/d'" # removes line with Time stamp so there are no false diffs from a time change
+  - "'/^Current configuration/d'" # removes Current configuration line as it is unnecessary
+  - "'/^Building configuration/d'" # removes Building configuration line as it is unecessary
+  - "'/^.*Last configuration change/d'" # removes Last configuration change line as it is unnecessary
+  - "'/^.*NVRAM config last/d'" # removes NVRAM config last line as it is unecessary
+  - "'/^ntp clock-period/d'" # removes ntp clock-period line so there are no falst diffs from a time change
+  - "'/^Tacacs session has expired/d'" # removes Tacacs session has expired as this is unnecessary
