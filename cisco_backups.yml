@@ -81,8 +81,8 @@
     delegate_to: localhost
     register: diff_output
     when:
-      - diff_result.rc == 1
       - check_result.stat.exists
+      - diff_result.rc == 1
     notify: email diffs
     async: 120
     poll: 30
