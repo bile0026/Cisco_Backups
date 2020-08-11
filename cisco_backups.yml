@@ -29,6 +29,7 @@
     package:
       name:
         - vim
+        - diffutils
       state: present
     delegate_to: localhost
     become: true
