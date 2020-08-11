@@ -25,9 +25,11 @@
     - cisco_vars.yml
 
   tasks:
-  - name: Ensure vim is installed for diff output
+  - name: Ensure vim and diff are installed for diff output
     package:
-      name: vim
+      name:
+        - vim
+        - diff
       state: present
     delegate_to: localhost
     run_once: true
