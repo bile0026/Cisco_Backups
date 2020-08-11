@@ -25,13 +25,13 @@
     - cisco_vars.yml
 
   tasks:
-  - name: Ensure vim and diff are installed for diff output
+  - name: Ensure package dependencies are installed
     package:
       name:
         - vim
-        - diff
       state: present
     delegate_to: localhost
+    become: true
     run_once: true
 
   - name: Create {{ current_date }} folder when it does not exist
